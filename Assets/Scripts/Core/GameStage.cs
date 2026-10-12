@@ -1,0 +1,1 @@
+public enum GameStage { Intro, Story, Garden, Escape, TeaParty, Ending }
