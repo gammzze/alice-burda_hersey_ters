@@ -225,6 +225,8 @@ GameObject:
   - component: {fileID: 347752376}
   - component: {fileID: 347752375}
   - component: {fileID: 347752377}
+  - component: {fileID: 347752379}
+  - component: {fileID: 347752378}
   m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
@@ -364,6 +366,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35cb4bbe08a8c74385f69477015e6f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugOrderSource
+--- !u!114 &347752378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347752370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c5fa03c9565b4f4b863e97a4c4a78a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoseSensorTest
+--- !u!114 &347752379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347752370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb69fddfe8eab644a9a62fb4af3f40dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RaycastRoseSensor
+  detectionRadius: 10
+  rayRange: 12
+  roseMask:
+    serializedVersion: 2
+    m_Bits: 64
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &546908464
 GameObject:
   m_ObjectHideFlags: 0
