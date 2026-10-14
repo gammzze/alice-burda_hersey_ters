@@ -29,11 +29,10 @@ public class ApproachState : IAgentState
 
         if (ctx.Navigator.HasArrived)
         {
-            // TODO (Adým 8): PaintState'e geçilecek. Þimdilik Idle'a dön.
             Debug.Log("[Approach] Güle varýldý");
-            ctx.Behavior.ChangeState(new IdleState(ctx));
+            ctx.Behavior.ChangeState(new PaintState(ctx, target));
         }
     }
 
-    public void Exit() { ctx.Navigator.Stop(); }
+    public void Exit() { }
 }

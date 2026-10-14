@@ -18,9 +18,8 @@ public class SearchRoseState : IAgentState
 
         if (rose == null)
         {
-            // TODO (Adým 8): CompletedState'e geçilecek. Þimdilik Idle'a dön.
             Debug.Log("[Search] Gül bulunamadý");
-            ctx.Behavior.ChangeState(new IdleState(ctx));
+            ctx.Behavior.ChangeState(new CompletedState(ctx));
             return;
         }
 
