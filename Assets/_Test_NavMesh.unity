@@ -222,7 +222,9 @@ GameObject:
   - component: {fileID: 347752374}
   - component: {fileID: 347752373}
   - component: {fileID: 347752372}
-  - component: {fileID: 347752371}
+  - component: {fileID: 347752376}
+  - component: {fileID: 347752375}
+  - component: {fileID: 347752377}
   m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
@@ -230,19 +232,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &347752371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 347752370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 06e92428b62e17e459655f2b0bb4d88e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BotMoveTest
-  target: {fileID: 1199355418}
 --- !u!195 &347752372
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -339,6 +328,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &347752375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347752370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bbad8774bf5f3e4ebbd2ce8a3961e7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotStateTest
+--- !u!114 &347752376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347752370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a8093191742e0b40b196ba0b0fca3a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BrushBotAgent
+--- !u!114 &347752377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347752370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e35cb4bbe08a8c74385f69477015e6f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DebugOrderSource
 --- !u!1 &546908464
 GameObject:
   m_ObjectHideFlags: 0
