@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Emri alýr ve tüketir. Þimdilik test için Idle'a döner.</summary>
+/// <summary>Emri alýr, tüketir ve gül aramaya geçer.</summary>
 public class ReceiveOrderState : IAgentState
 {
     private readonly BotContext ctx;
@@ -18,8 +18,7 @@ public class ReceiveOrderState : IAgentState
 
     public void Tick()
     {
-        // TODO (Adým 7B): SearchRoseState'e geçilecek. Þimdilik test için Idle'a dön.
-        ctx.Behavior.ChangeState(new IdleState(ctx));
+        ctx.Behavior.ChangeState(new SearchRoseState(ctx));
     }
 
     public void Exit() { }
