@@ -1,14 +1,21 @@
 using UnityEngine;
 
-/// <summary>Geçici test scripti. BrushBotAgent'ý IdleState ile baþlatýr.</summary>
+/// <summary>Geçici test scripti. Baðýmlýlýklarý kurar ve botu IdleState ile baþlatýr.</summary>
 [RequireComponent(typeof(BrushBotAgent))]
 [RequireComponent(typeof(DebugOrderSource))]
+[RequireComponent(typeof(RaycastRoseSensor))]
 public class BotStateTest : MonoBehaviour
 {
     void Start()
     {
         var agent = GetComponent<BrushBotAgent>();
-        var orders = GetComponent<DebugOrderSource>();
-        agent.ChangeState(new IdleState(agent, orders));
+
+        var context = new BotContext(
+            agent,
+            GetComponent<RaycastRoseSensor>(),
+            new NavMeshAgentNavigator(agent.NavAgent),
+            GetComponent<DebugOrderSource>());
+
+        agent.ChangeState(new IdleState(context));
     }
 }

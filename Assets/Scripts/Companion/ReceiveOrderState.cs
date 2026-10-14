@@ -3,25 +3,23 @@ using UnityEngine;
 /// <summary>Emri alýr ve tüketir. Þimdilik test için Idle'a döner.</summary>
 public class ReceiveOrderState : IAgentState
 {
-    private readonly IAgentBehavior behavior;
-    private readonly IOrderSource orderSource;
+    private readonly BotContext ctx;
 
-    public ReceiveOrderState(IAgentBehavior behavior, IOrderSource orderSource)
+    public ReceiveOrderState(BotContext ctx)
     {
-        this.behavior = behavior;
-        this.orderSource = orderSource;
+        this.ctx = ctx;
     }
 
     public void Enter()
     {
-        orderSource.ConsumeOrder();
+        ctx.Orders.ConsumeOrder();
         Debug.Log("[ReceiveOrder] Emir alýndý");
     }
 
     public void Tick()
     {
-        // TODO: SearchRoseState'e geçilecek. Þimdilik test için Idle'a dön.
-        behavior.ChangeState(new IdleState(behavior, orderSource));
+        // TODO (Adým 7B): SearchRoseState'e geçilecek. Þimdilik test için Idle'a dön.
+        ctx.Behavior.ChangeState(new IdleState(ctx));
     }
 
     public void Exit() { }
