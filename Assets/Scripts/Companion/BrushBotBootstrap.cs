@@ -1,10 +1,13 @@
 using UnityEngine;
 
-/// <summary>Geçici test scripti. Baðýmlýlýklarý kurar ve botu IdleState ile baþlatýr.</summary>
+/// <summary>
+/// Fýrça Bot'un baðýmlýlýklarýný bir araya getirir ve ilk durumu baþlatýr.
+/// Somut sýnýflarý yalnýzca burada birleþtiririz, durumlar arayüz görür.
+/// </summary>
 [RequireComponent(typeof(BrushBotAgent))]
-[RequireComponent(typeof(DebugOrderSource))]
 [RequireComponent(typeof(RaycastRoseSensor))]
-public class BotStateTest : MonoBehaviour
+[RequireComponent(typeof(OrderInput))]
+public class BrushBotBootstrap : MonoBehaviour
 {
     void Start()
     {
@@ -14,7 +17,7 @@ public class BotStateTest : MonoBehaviour
             agent,
             GetComponent<RaycastRoseSensor>(),
             new NavMeshAgentNavigator(agent.NavAgent),
-            GetComponent<DebugOrderSource>());
+            GetComponent<OrderInput>());
 
         agent.ChangeState(new IdleState(context));
     }

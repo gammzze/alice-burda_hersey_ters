@@ -376,10 +376,9 @@ GameObject:
   - component: {fileID: 347752373}
   - component: {fileID: 347752372}
   - component: {fileID: 347752376}
-  - component: {fileID: 347752375}
-  - component: {fileID: 347752377}
   - component: {fileID: 347752379}
-  - component: {fileID: 347752378}
+  - component: {fileID: 347752381}
+  - component: {fileID: 347752380}
   m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
@@ -483,18 +482,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &347752375
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 347752370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bbad8774bf5f3e4ebbd2ce8a3961e7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BotStateTest
 --- !u!114 &347752376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,30 +494,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8093191742e0b40b196ba0b0fca3a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BrushBotAgent
---- !u!114 &347752377
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 347752370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e35cb4bbe08a8c74385f69477015e6f2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DebugOrderSource
---- !u!114 &347752378
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 347752370}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c5fa03c9565b4f4b863e97a4c4a78a5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RoseSensorTest
 --- !u!114 &347752379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,6 +514,31 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 128
+--- !u!114 &347752380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347752370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7777d955694f56040b74a5a6d441718c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BrushBotBootstrap
+--- !u!114 &347752381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347752370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b72acc30ad24e764d9d4e5ead8891c8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrderInput
+  orderKey: 32
 --- !u!1 &546908464
 GameObject:
   m_ObjectHideFlags: 0
