@@ -30,7 +30,14 @@ Yanýtýný SADECE aþaðýdaki JSON formatýnda ver, baþka hiçbir metin ekleme:
         ILlmClient client = new OllamaClient();
         var result = await client.SendAsync(SystemPrompt, userMessage);
 
-        if (result.Success) Debug.Log(result.RawJson);
-        else Debug.LogWarning("LLM hatasý: " + result.Error);
+        if (!result.Success)
+        {
+            Debug.LogWarning("LLM hatasý: " + result.Error);
+            return;
+        }
+
+        NpcResponse npc = NpcResponseParser.Parse(result.RawJson);
+        npc = NpcResponseValidator.Validate(npc);
+        Debug.Log($"reply: {npc.reply}\nmood: {npc.mood}\npersuasion: {npc.persuasion}\naction: {npc.action}");
     }
 }
