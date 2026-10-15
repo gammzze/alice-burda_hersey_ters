@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 public interface ILlmClient
 {
-    Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages);
+    Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages,
+                              CancellationToken cancellationToken = default);
 }
 
 public class LlmResult

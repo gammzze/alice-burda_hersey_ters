@@ -240,7 +240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5e0400f53aaeff4fbd1b13f4b7b6f2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OllamaTest
-  userMessage: "Merhaba \u015Eapkac\u0131, \xE7ay partisi nas\u0131l gidiyor?"
+  userMessage: 
 --- !u!4 &1910970416
 Transform:
   m_ObjectHideFlags: 0

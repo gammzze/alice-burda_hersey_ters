@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -20,7 +21,8 @@ public class OllamaClient : ILlmClient
         _timeoutSeconds = timeoutSeconds;
     }
 
-    public async Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages)
+    public async Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages,
+                                           CancellationToken cancellationToken = default)
     {
         string body = BuildBody(messages);
 
@@ -33,7 +35,14 @@ public class OllamaClient : ILlmClient
 
             var op = req.SendWebRequest();
             while (!op.isDone)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    req.Abort();
+                    return new LlmResult { Success = false, Error = "Ýstek iptal edildi." };
+                }
                 await Task.Yield();   // frame'i bloklamaz
+            }
 
             if (req.result != UnityWebRequest.Result.Success)
                 return new LlmResult { Success = false, Error = req.error };
@@ -44,13 +53,12 @@ public class OllamaClient : ILlmClient
 
     private string BuildBody(IReadOnlyList<ChatMessage> messages)
     {
-        var list = new List<ChatMessage>(messages);
         var payload = new ChatRequest
         {
             model = _model,
             stream = false,
             format = "json",
-            messages = list.ToArray()
+            messages = new List<ChatMessage>(messages).ToArray()
         };
         return JsonUtility.ToJson(payload);
     }

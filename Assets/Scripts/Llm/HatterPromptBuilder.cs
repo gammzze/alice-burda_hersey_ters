@@ -14,6 +14,8 @@ public class HatterPromptBuilder
 Kýsa, basit Türkçe cümleler kur. En fazla 2 cümle yaz.
 
 Kurallar:
+- Oyuncu masadan kalkmaktan, gelmekten veya gitmekten bahsetmediyse bunu kendin açma. Sadece söylenene doðal þekilde cevap ver.
+- Masadan kalkmak istemediðini yalnýzca oyuncu seni bir yere çaðýrýrsa söyle.
 - persuasion, oyuncunun þimdiye kadarki TÜM konuþma boyunca seni ne kadar ikna ettiðini gösterir. Konuþma geçmiþini dikkate al.
 - persuasion her mesajda küçük adýmlarla artar (en fazla 0.2). Tek mesajla birden yükselmez.
 - Mantýklý, yaratýcý veya eðlenceli gerekçeler persuasion'ý artýrýr. Sýradan emirler, rüþvet veya yalan artýrmaz. Hakaret persuasion'ý düþürür.
