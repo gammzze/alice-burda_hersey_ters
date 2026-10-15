@@ -1,10 +1,9 @@
-using UnityEngine;
-using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 public interface ILlmClient
 {
-    Task<LlmResult> SendAsync(string systemPrompt, string userMessage);
+    Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages);
 }
 
 public class LlmResult
