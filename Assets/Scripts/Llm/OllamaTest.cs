@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class OllamaTest : MonoBehaviour
 {
@@ -187,5 +188,68 @@ public class OllamaTest : MonoBehaviour
         Debug.Log(sb.ToString());
         Debug.Log("Sonuçlar kaydedildi: " + Path.GetFullPath(path));
         _busy = false;
+    }
+
+    // Ollama'sız: bozuk yanıtlarda oyun durumunun değişmediğini kanıtlar.
+    [ContextMenu("Run Bad Json Tests")]
+    public async void RunBadJsonTests()
+    {
+        if (_busy) return;
+        _busy = true;
+
+        string validContent = "{\"reply\":\"Merhaba\",\"mood\":\"happy\",\"persuasion\":1.0,\"action\":\"LeaveTable\"}";
+
+        var cases = new (string name, LlmResult result, bool expectFallback)[]
+        {
+            ("Bos yanit", new LlmResult { Success = true, RawJson = "" }, true),
+            ("Duz metin (abc)", new LlmResult { Success = true, RawJson = "abc" }, true),
+            ("Bozuk icerik", new LlmResult { Success = true, RawJson = Wrap("{bozuk json") }, true),
+            ("reply eksik", new LlmResult { Success = true, RawJson = Wrap("{\"mood\":\"happy\",\"persuasion\":0.5,\"action\":\"None\"}") }, true),
+            ("Sunucu hatasi", new LlmResult { Success = false, Error = "Cannot connect to destination host" }, true),
+            ("Gecerli ama persuasion 1.0 + LeaveTable (ilk tur)", new LlmResult { Success = true, RawJson = Wrap(validContent) }, false),
+        };
+
+        var sb = new StringBuilder();
+        int passed = 0;
+
+        foreach (var c in cases)
+        {
+            var tracker = new PersuasionTracker();
+            var history = new ConversationHistory();
+            var controller = new NpcDialogueController(
+                new FakeLlmClient(c.result), new HatterPromptBuilder(), history, maxRetries: 0, tracker: tracker);
+
+            DialogueOutcome o = await controller.AskAsync("test mesaji", destroyCancellationToken);
+            if (o.IsCancelled) { _busy = false; return; }
+
+            bool fallbackOk = o.IsFallback == c.expectFallback;
+            bool stateOk;
+            if (c.expectFallback)
+                stateOk = !o.ShouldApplyAction && tracker.Current == 0f && history.Recent(100).Count == 0
+                          && o.Response.action == NpcActions.None;
+            else
+                // Gecerli yanit: tek turda en fazla +0.2, LeaveTable reddedilmeli
+                stateOk = tracker.Current <= PersuasionTracker.MaxIncreasePerTurn + 0.001f
+                          && o.Response.action == NpcActions.None;
+
+            bool ok = fallbackOk && stateOk;
+            if (ok) passed++;
+
+            sb.AppendLine($"[{(ok ? "PASS" : "FAIL")}] {c.name}");
+            sb.AppendLine($"   yedek: {o.IsFallback} | eylem: {o.Response.action} | persuasion: {tracker.Current:F2} | gecmis: {history.Recent(100).Count} | hata: {o.Error}");
+        }
+
+        sb.Insert(0, $"Bozuk JSON testleri: {passed}/{cases.Length} gecti\n");
+        string path = Path.Combine(Application.dataPath, "..", "DialogueTests_badjson.txt");
+        File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
+        Debug.Log(sb.ToString());
+        _busy = false;
+    }
+
+    // İçerik metnini Ollama zarfı gibi sarar.
+    private static string Wrap(string content)
+    {
+        string escaped = content.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        return "{\"message\":{\"role\":\"assistant\",\"content\":\"" + escaped + "\"}}";
     }
 }
