@@ -5,23 +5,25 @@ using UnityEngine;
 
 // Diyalog akýþý: mesaj -> prompt -> LLM -> parse -> doðrulama -> sonuç.
 // Hata olursa 1-2 kez yeniden dener, olmazsa yedek yanýt döner.
-// Baðýmlýlýklar dýþarýdan verilir (arayüze baðýmlýlýk, test edilebilirlik).
 public class NpcDialogueController
 {
     private readonly ILlmClient _client;
     private readonly HatterPromptBuilder _builder;
     private readonly ConversationHistory _history;
+    private readonly PersuasionTracker _tracker;
     private readonly int _maxRetries;
 
     public NpcDialogueController(ILlmClient client,
                                  HatterPromptBuilder builder,
                                  ConversationHistory history,
-                                 int maxRetries = 1)
+                                 int maxRetries = 1,
+                                 PersuasionTracker tracker = null)
     {
         _client = client;
         _builder = builder;
         _history = history;
         _maxRetries = Mathf.Clamp(maxRetries, 0, 2);
+        _tracker = tracker ?? new PersuasionTracker();
     }
 
     public async Task<DialogueOutcome> AskAsync(string playerMessage,
@@ -43,7 +45,7 @@ public class NpcDialogueController
 
             try
             {
-                LlmResult result = await _client.SendAsync(_builder.Build(_history), cancellationToken);
+                LlmResult result = await _client.SendAsync(_builder.Build(_history, _tracker.Current), cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -66,8 +68,22 @@ public class NpcDialogueController
                     continue;
                 }
 
-                NpcResponse npc = NpcResponseValidator.Validate(parsed.Response);
-                _history.AddAssistant(JsonUtility.ToJson(npc));
+                // 1) deðerleri düzelt, 2) toplam ikna seviyesini kodda biriktir,
+                // 3) eþik kontrolü TOPLAM seviyeye bakar.
+                NpcResponse npc = NpcResponseValidator.Normalize(parsed.Response);
+                float turnScore = npc.persuasion;
+                npc.persuasion = _tracker.Apply(turnScore, npc.mood);
+                npc = NpcResponseValidator.Validate(npc);
+
+                // Geçmiþe modelin kendi verdiði tur puaný yazýlýr, toplam deðil.
+                var stored = new NpcResponse
+                {
+                    reply = npc.reply,
+                    mood = npc.mood,
+                    persuasion = turnScore,
+                    action = npc.action
+                };
+                _history.AddAssistant(JsonUtility.ToJson(stored));
                 return DialogueOutcome.Success(npc);
             }
             catch (Exception e)
@@ -77,7 +93,6 @@ public class NpcDialogueController
             }
         }
 
-        // Tüm denemeler baþarýsýz: baþarýsýz oyuncu mesajý geçmiþte kalmasýn.
         _history.RemoveLast();
         return DialogueOutcome.Fallback(lastError);
     }

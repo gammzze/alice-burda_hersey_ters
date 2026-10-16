@@ -1,0 +1,17 @@
+﻿Uzun ikna testi, prompt: v2
+Tur 1: "Merhaba Şapkacı, çay partin harika görünüyor."
+  reply: Çok teşekkür ederim! Çaylar da çok lezzetli.
+  mood: happy | persuasion: 0,04 | action: None | yedek: False
+Tur 2: "Bilmece sevdiğini duydum, ben de çok severim."
+  reply: Bilmeceler harika! Bir tane sorabilir misin?
+  mood: happy | persuasion: 0,16 | action: None | yedek: False
+Tur 3: "Senin kadar iyi bilmece soran birini hiç görmedim."
+  reply: Aaa, ne kadar naziksiniz! Ama ben sadece biraz eğleniyorum.
+  mood: happy | persuasion: 0,32 | action: None | yedek: False
+Tur 4: "Yan odada büyük bir bilmece yarışması var, katılımcı arıyorlar."
+  reply: Bilmece yarışması mı? Çok harika! Ne tür bilmeceler soruyorlar acaba?
+  mood: happy | persuasion: 0,52 | action: None | yedek: False
+Tur 5: "Kazanana altın bir şapka veriyorlar, sana çok yakışır."
+  reply: Altın bir şapka mı? Ooo, ne kadar güzel!
+  mood: happy | persuasion: 0,72 | action: LeaveTable | yedek: False
+  >>> LeaveTable tetiklendi, konuşma bitti.

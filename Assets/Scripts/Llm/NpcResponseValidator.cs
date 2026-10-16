@@ -4,10 +4,11 @@ using UnityEngine;
 // Modelin ürettiði deðerleri doðrular ve güvenli hale getirir.
 public static class NpcResponseValidator
 {
-    // LeaveTable için gereken minimum ikna seviyesi
+    // LeaveTable için gereken minimum toplam ikna seviyesi
     public const float LeaveTableThreshold = 0.7f;
 
-    public static NpcResponse Validate(NpcResponse response)
+    // Deðer/ölçek düzeltme. Eþik kontrolü yapmaz.
+    public static NpcResponse Normalize(NpcResponse response)
     {
         if (response == null)
             return null;
@@ -19,8 +20,17 @@ public static class NpcResponseValidator
 
         response.mood = NormalizeMood(response.mood);
         response.action = NormalizeAction(response.action);
+        return response;
+    }
 
-        // Eþik kodda: ikna yetersizse kalkmaz
+    // Normalize + eþik kontrolü. persuasion burada TOPLAM seviye olmalý.
+    public static NpcResponse Validate(NpcResponse response)
+    {
+        if (response == null)
+            return null;
+
+        Normalize(response);
+
         if (response.action == NpcActions.LeaveTable &&
             response.persuasion < LeaveTableThreshold)
         {
