@@ -3,7 +3,10 @@ using UnityEngine;
 // 05_TeaParty sahnesinin baðýmlýlýklarýný tek yerde birleþtirir (composition root).
 public class TeaPartyInstaller : MonoBehaviour
 {
+    [SerializeField] private TeaPartySceneController sceneController;
+
     public IGameFlow Flow { get; private set; }
+    public IHatterScene Scene { get; private set; }
     public GameActionFactory Actions { get; private set; }
     public NpcDialogueController Dialogue { get; private set; }
 
@@ -13,10 +16,17 @@ public class TeaPartyInstaller : MonoBehaviour
 
         Flow = GameFlowResolver.Resolve();
 
-        // Adým 2'de DebugHatterScene yerine gerçek sahne denetleyicisi gelecek.
-        IHatterScene scene = new DebugHatterScene();
+        if (sceneController != null)
+        {
+            Scene = sceneController;
+        }
+        else
+        {
+            Debug.LogWarning("TeaPartySceneController atanmamýþ, debug sahne kullanýlýyor.");
+            Scene = new DebugHatterScene();
+        }
 
-        Actions = new GameActionFactory(Flow, scene, rules);
+        Actions = new GameActionFactory(Flow, Scene, rules);
         Dialogue = HatterDialogueFactory.Create(new OllamaClient(), rules: rules);
     }
 }
