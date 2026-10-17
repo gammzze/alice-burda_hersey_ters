@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -5,147 +6,126 @@ using UnityEngine.AI;
 [RequireComponent(typeof(FieldOfView2D))]
 public class SoldierAI : MonoBehaviour
 {
-    public enum SoldierState { Patrol, Chase, Search }
-    [Header("Durum")]
-    public SoldierState currentState = SoldierState.Patrol;
+    [Header("Devriye")]
+    [SerializeField] private Transform[] patrolPoints;
+    [SerializeField] private float patrolSpeed = 2f;
+    [SerializeField] private float patrolWaitTime = 1f;
 
-    [Header("Devriye Noktalarý")]
-    public Transform[] patrolPoints;
-    private int currentPatrolIndex = 0;
+    [Header("Kovalama")]
+    [SerializeField] private float chaseSpeed = 3.5f;
+    [SerializeField] private float catchDistance = 0.6f;
+    [SerializeField] private float loseSightTime = 0.5f;
 
-    [Header("Ayarlar")]
-    public float chaseSpeed = 3.5f;
-    public float patrolSpeed = 2f;
-    public float searchDuration = 3f;
-    private float searchTimer = 0f;
+    [Header("Arama")]
+    [SerializeField] private float searchDuration = 3f;
 
-    private NavMeshAgent navAgent;
-    private FieldOfView2D fov;
-    private Transform playerTransform;
+    [Header("Respawn sonrasý")]
+    [SerializeField] private float graceSeconds = 2f;
 
-    private Vector3 startingPosition;
+    [Header("Görsel (opsiyonel)")]
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
-    void Start()
+    public event Action<SoldierAI> PlayerCaught;
+
+    public NavMeshAgent Agent { get; private set; }
+    public IVisionSensor Sensor { get; private set; }
+    public Vector2 Facing { get; private set; } = Vector2.right;
+    public Vector3 LastKnownPosition { get; set; }
+
+    public Transform[] PatrolPoints => patrolPoints;
+    public float PatrolSpeed => patrolSpeed;
+    public float PatrolWaitTime => patrolWaitTime;
+    public float ChaseSpeed => chaseSpeed;
+    public float CatchDistance => catchDistance;
+    public float LoseSightTime => loseSightTime;
+    public float SearchDuration => searchDuration;
+    public bool IsIgnoring => Time.time < ignoreUntil;
+
+    public ISoldierState Patrol { get; private set; }
+    public ISoldierState Chase { get; private set; }
+    public ISoldierState Search { get; private set; }
+
+    private ISoldierState current;
+    private Vector3 spawnPosition;
+    private bool hasCaught;
+    private float ignoreUntil;
+
+    private void Awake()
     {
-        navAgent = GetComponent<NavMeshAgent>();
-        fov = GetComponent<FieldOfView2D>();
+        Agent = GetComponent<NavMeshAgent>();
+        Agent.updateRotation = false;
+        Agent.updateUpAxis = false;
 
-        // NavMeshAgent 2D ayarlarý (rotasyon kilitleri)
-        navAgent.updateRotation = false;
-        navAgent.updateUpAxis = false;
+        Sensor = GetComponent<IVisionSensor>();
+        spawnPosition = transform.position;
 
-        startingPosition = transform.position;
+        Patrol = new PatrolState(this);
+        Chase = new ChaseState(this);
+        Search = new SearchState(this);
 
-        // Sahnedeki oyuncuyu bul (PlayerController2D etiketine veya tipine göre)
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            playerTransform = playerObj.transform;
-        }
-
-        GotoNextPatrolPoint();
+        SnapToNavMesh();
     }
 
-    void Update()
+    private void Start()
     {
-        // 1. Görüþ alanýný sürekli kontrol et
-        bool seesPlayer = fov.CheckVision(playerTransform);
-
-        switch (currentState)
+        if (!Agent.isOnNavMesh)
         {
-            case SoldierState.Patrol:
-                PatrolTick(seesPlayer);
-                break;
-            case SoldierState.Chase:
-                ChaseTick(seesPlayer);
-                break;
-            case SoldierState.Search:
-                SearchTick(seesPlayer);
-                break;
-        }
-    }
-
-    void PatrolTick(bool seesPlayer)
-    {
-        navAgent.speed = patrolSpeed;
-
-        if (seesPlayer)
-        {
-            Debug.Log("[SoldierAI] Alice görüldü! Kovalama baþlýyor.");
-            currentState = SoldierState.Chase;
+            Debug.LogError($"{name}: NavMesh üzerinde deðil. Askeri NavMesh alanýnýn içine yerleþtir ve Bake et.", this);
+            enabled = false;
             return;
         }
-
-        // Devriye noktasýna varýldý mý kontrolü
-        if (!navAgent.pathPending && navAgent.remainingDistance < 0.5f)
-        {
-            GotoNextPatrolPoint();
-        }
+        ChangeState(Patrol);
     }
 
-    void ChaseTick(bool seesPlayer)
+    private void Update()
     {
-        navAgent.speed = chaseSpeed;
-
-        if (seesPlayer)
-        {
-            // Oyuncuyu takip etmeye devam et
-            navAgent.SetDestination(playerTransform.position);
-
-            // Yakalanma kontrolü (Örn: Mesafe 1 birimden küçükse yakaladý demektir)
-            float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-            if (distanceToPlayer <= 1.2f)
-            {
-                TriggerCheckpointRespawn();
-            }
-        }
-        else
-        {
-            // Gözden kaybetti, doðrudan arama durumuna geç
-            Debug.Log("[SoldierAI] Hedef kaybedildi, aranýyor...");
-            currentState = SoldierState.Search;
-            searchTimer = searchDuration;
-        }
+        UpdateFacing();
+        current?.Tick();
     }
 
-    void SearchTick(bool seesPlayer)
+    public void ChangeState(ISoldierState next)
     {
-        if (seesPlayer)
-        {
-            currentState = SoldierState.Chase;
-            return;
-        }
-
-        searchTimer -= Time.deltaTime;
-        if (searchTimer <= 0f)
-        {
-            // Aramadan vazgeç, tekrar devriyeye dön
-            currentState = SoldierState.Patrol;
-            GotoNextPatrolPoint();
-        }
+        current?.Exit();
+        current = next;
+        current.Enter();
     }
 
-    void GotoNextPatrolPoint()
+    public bool HasReachedDestination()
     {
-        if (patrolPoints == null || patrolPoints.Length == 0) return;
-
-        navAgent.SetDestination(patrolPoints[currentPatrolIndex].position);
-        currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+        return !Agent.pathPending &&
+               Agent.remainingDistance <= Agent.stoppingDistance + 0.1f;
     }
 
-    void TriggerCheckpointRespawn()
+    public void NotifyCaught()
     {
-        Debug.LogWarning("[SoldierAI] Alice yakalandý! Checkpoint noktasýna dönülüyor.");
+        if (hasCaught || IsIgnoring) return;
+        hasCaught = true;
+        PlayerCaught?.Invoke(this);
+    }
 
-        // Oyuncuyu son checkpoint pozisyonuna ýþýnla veya GameStateManager üzerinden yönet
-        // Örnek basit sýfýrlama:
-        if (playerTransform != null)
-        {
-            // Eðer varsa Checkpoint Manager çaðrýlabilir, þimdilik baþlangýç noktasýna veya checkpoint'e atýyoruz:
-            playerTransform.position = startingPosition;
-        }
+    public void ResetToSpawn()
+    {
+        hasCaught = false;
+        ignoreUntil = Time.time + graceSeconds;
+        Agent.Warp(spawnPosition);
+        Agent.ResetPath();
+        ChangeState(Patrol);
+    }
 
-        currentState = SoldierState.Patrol;
-        GotoNextPatrolPoint();
+    private void SnapToNavMesh()
+    {
+        if (Agent.isOnNavMesh) return;
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            Agent.Warp(hit.position);
+    }
+
+    private void UpdateFacing()
+    {
+        if (Agent.velocity.sqrMagnitude < 0.01f) return;
+
+        Facing = Agent.velocity.normalized;
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = Facing.x < 0f;
     }
 }
