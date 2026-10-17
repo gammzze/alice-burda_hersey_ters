@@ -3,13 +3,12 @@ using System;
 [Serializable]
 public class NpcResponse
 {
-    public string reply;      // NPC'nin oyuncuya söylediði cümle
-    public string mood;       // neutral | angry | happy | suspicious
-    public int persuasion;    // 0-100: oyuncunun NPC'yi ikna seviyesi
-    public string action;     // none | open_door | attack
+    public string reply;      // Þapkacý'nýn söylediði cümle
+    public string mood;       // neutral, angry, happy, suspicious
+    public float persuasion;  // 0.0 - 1.0 arasý ikna seviyesi
+    public string action;     // None, LeaveTable, Attack
 }
 
-// Geçerli deðerleri tek yerde tutuyoruz, baþka sýnýflar buradan okur.
 public static class NpcMoods
 {
     public const string Neutral = "neutral";
@@ -20,7 +19,7 @@ public static class NpcMoods
 
 public static class NpcActions
 {
-    public const string None = "none";
-    public const string OpenDoor = "open_door";
-    public const string Attack = "attack";
+    public const string None = "None";
+    public const string LeaveTable = "LeaveTable";
+    public const string Attack = "Attack";
 }

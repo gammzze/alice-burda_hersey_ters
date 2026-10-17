@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -19,9 +21,10 @@ public class OllamaClient : ILlmClient
         _timeoutSeconds = timeoutSeconds;
     }
 
-    public async Task<LlmResult> SendAsync(string systemPrompt, string userMessage)
+    public async Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages,
+                                           CancellationToken cancellationToken = default)
     {
-        string body = BuildBody(systemPrompt, userMessage);
+        string body = BuildBody(messages);
 
         using (var req = new UnityWebRequest(_url, "POST"))
         {
@@ -32,34 +35,34 @@ public class OllamaClient : ILlmClient
 
             var op = req.SendWebRequest();
             while (!op.isDone)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    req.Abort();
+                    return new LlmResult { Success = false, Error = "Ýstek iptal edildi." };
+                }
                 await Task.Yield();   // frame'i bloklamaz
+            }
 
             if (req.result != UnityWebRequest.Result.Success)
-            {
                 return new LlmResult { Success = false, Error = req.error };
-            }
 
             return new LlmResult { Success = true, RawJson = req.downloadHandler.text };
         }
     }
 
-    private string BuildBody(string systemPrompt, string userMessage)
+    private string BuildBody(IReadOnlyList<ChatMessage> messages)
     {
         var payload = new ChatRequest
         {
             model = _model,
             stream = false,
             format = "json",
-            messages = new[]
-            {
-                new ChatMessage { role = "system", content = systemPrompt },
-                new ChatMessage { role = "user", content = userMessage }
-            }
+            messages = new List<ChatMessage>(messages).ToArray()
         };
         return JsonUtility.ToJson(payload);
     }
 
-    [Serializable] private class ChatMessage { public string role; public string content; }
     [Serializable]
     private class ChatRequest
     {

@@ -1,0 +1,13 @@
+﻿Bozuk JSON testleri: 6/6 gecti
+[PASS] Bos yanit
+   yedek: True | eylem: None | persuasion: 0,00 | gecmis: 0 | hata: Boş yanıt geldi.
+[PASS] Duz metin (abc)
+   yedek: True | eylem: None | persuasion: 0,00 | gecmis: 0 | hata: Bozuk JSON: JSON parse error: Invalid value.
+[PASS] Bozuk icerik
+   yedek: True | eylem: None | persuasion: 0,00 | gecmis: 0 | hata: Eksik alan: reply
+[PASS] reply eksik
+   yedek: True | eylem: None | persuasion: 0,00 | gecmis: 0 | hata: Eksik alan: reply
+[PASS] Sunucu hatasi
+   yedek: True | eylem: None | persuasion: 0,00 | gecmis: 0 | hata: Cannot connect to destination host
+[PASS] Gecerli ama persuasion 1.0 + LeaveTable (ilk tur)
+   yedek: False | eylem: None | persuasion: 0,20 | gecmis: 2 | hata: 
