@@ -1,46 +1,66 @@
+using System;
 using UnityEngine;
 
 // Modelin ürettiði deðerleri doðrular ve güvenli hale getirir.
-// Küçük modeller kurallara her zaman uymadýðý için son karar kodda verilir.
-public static class NpcResponseValidator
+public class NpcResponseValidator : IResponseValidator
 {
-    // open_door için gereken minimum ikna seviyesi
-    public const int OpenDoorThreshold = 80;
+    private readonly DialogueRules _rules;
 
-    public static NpcResponse Validate(NpcResponse response)
+    public NpcResponseValidator(DialogueRules rules)
+    {
+        _rules = rules;
+    }
+
+    // Deðer/ölçek düzeltme. Eþik kontrolü yapmaz.
+    public NpcResponse Normalize(NpcResponse response)
     {
         if (response == null)
             return null;
 
-        // persuasion 0-100 aralýðýna kýsýlýr
-        response.persuasion = Mathf.Clamp(response.persuasion, 0, 100);
+        // Model bazen 0-100 ölçeðinde verir (örn. 70). 0-1'e çevir, sonra kýrp.
+        if (response.persuasion > 1f && response.persuasion <= 100f)
+            response.persuasion /= 100f;
+        response.persuasion = Mathf.Clamp01(response.persuasion);
 
-        // bilinmeyen mood deðeri neutral olur
-        if (response.mood != NpcMoods.Neutral &&
-            response.mood != NpcMoods.Angry &&
-            response.mood != NpcMoods.Happy &&
-            response.mood != NpcMoods.Suspicious)
-        {
-            response.mood = NpcMoods.Neutral;
-        }
+        response.mood = NormalizeMood(response.mood);
+        response.action = NormalizeAction(response.action);
+        return response;
+    }
 
-        // bilinmeyen action deðeri none olur
-        if (response.action != NpcActions.None &&
-            response.action != NpcActions.OpenDoor &&
-            response.action != NpcActions.Attack)
-        {
-            response.action = NpcActions.None;
-        }
+    // Normalize + eþik kontrolü. persuasion burada TOPLAM seviye olmalý.
+    public NpcResponse Validate(NpcResponse response)
+    {
+        if (response == null)
+            return null;
 
-        // ikna yetersizse kapý açýlmaz
-        if (response.action == NpcActions.OpenDoor &&
-            response.persuasion < OpenDoorThreshold)
+        Normalize(response);
+
+        if (response.action == NpcActions.LeaveTable &&
+            response.persuasion < _rules.LeaveTableThreshold)
         {
-            Debug.LogWarning("Validator: open_door reddedildi, persuasion yetersiz (" +
-                             response.persuasion + ").");
+            Debug.LogWarning("Validator: LeaveTable reddedildi, persuasion yetersiz (" +
+                             response.persuasion.ToString("F2") + ").");
             response.action = NpcActions.None;
         }
 
         return response;
     }
+
+    private static string NormalizeMood(string mood)
+    {
+        if (Same(mood, NpcMoods.Angry)) return NpcMoods.Angry;
+        if (Same(mood, NpcMoods.Happy)) return NpcMoods.Happy;
+        if (Same(mood, NpcMoods.Suspicious)) return NpcMoods.Suspicious;
+        return NpcMoods.Neutral;
+    }
+
+    private static string NormalizeAction(string action)
+    {
+        if (Same(action, NpcActions.LeaveTable)) return NpcActions.LeaveTable;
+        if (Same(action, NpcActions.Attack)) return NpcActions.Attack;
+        return NpcActions.None;
+    }
+
+    private static bool Same(string a, string b) =>
+        string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 }

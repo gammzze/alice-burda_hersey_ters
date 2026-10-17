@@ -1,48 +1,57 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 
-// Ollama'dan gelen ham yanýtý (zarf) NpcResponse nesnesine çevirir.
-// Bozuk, boþ veya beklenmedik bir yanýtta oyunu çökertmek yerine
-// varsayýlan bir yanýt döner.
-public static class NpcResponseParser
+// Ollama'nÄ±n ham yanÄ±tÄ±nÄ± NpcResponse'a Ã§evirir.
+// BoÅŸ, bozuk veya eksik alanlÄ± yanÄ±tÄ± "geÃ§ersiz" olarak iÅŸaretler.
+public class NpcResponseParser : IResponseParser
 {
-    public static NpcResponse Parse(string rawJson)
+    private static readonly string[] RequiredKeys = { "reply", "mood", "persuasion", "action" };
+
+    public ParseResult Parse(string rawJson)
     {
+        if (string.IsNullOrWhiteSpace(rawJson))
+            return ParseResult.Fail("BoÅŸ yanÄ±t geldi.");
+
         try
         {
-            if (string.IsNullOrWhiteSpace(rawJson))
-                return Fallback("Boþ yanýt geldi.");
-
-            // 1. Katman: Ollama zarfý
             OllamaEnvelope envelope = JsonUtility.FromJson<OllamaEnvelope>(rawJson);
             if (envelope == null || envelope.message == null ||
                 string.IsNullOrWhiteSpace(envelope.message.content))
-                return Fallback("Zarfta içerik yok.");
+                return ParseResult.Fail("Zarfta iÃ§erik yok.");
 
-            // 2. Katman: modelin ürettiði JSON
-            NpcResponse response = JsonUtility.FromJson<NpcResponse>(envelope.message.content);
-            if (response == null || string.IsNullOrWhiteSpace(response.reply))
-                return Fallback("Model geçerli bir yanýt üretmedi.");
+            string content = StripCodeFence(envelope.message.content);
 
-            return response;
+            foreach (string key in RequiredKeys)
+            {
+                if (!content.Contains("\"" + key + "\""))
+                    return ParseResult.Fail("Eksik alan: " + key);
+            }
+
+            NpcResponse response = JsonUtility.FromJson<NpcResponse>(content);
+            if (response == null)
+                return ParseResult.Fail("YanÄ±t ayrÄ±ÅŸtÄ±rÄ±lamadÄ±.");
+
+            if (string.IsNullOrWhiteSpace(response.reply))
+                return ParseResult.Fail("reply alanÄ± boÅŸ.");
+
+            return ParseResult.Ok(response);
         }
         catch (Exception e)
         {
-            Debug.LogWarning("NpcResponseParser hatasý: " + e.Message);
-            return Fallback("Yanýt ayrýþtýrýlamadý.");
+            return ParseResult.Fail("Bozuk JSON: " + e.Message);
         }
     }
 
-    // Hata durumunda oyunun devam etmesini saðlayan güvenli yanýt.
-    private static NpcResponse Fallback(string reason)
+    // Model bazen JSON'u ```json ... ``` bloÄŸu iÃ§inde verir.
+    private static string StripCodeFence(string text)
     {
-        Debug.LogWarning("Parser fallback: " + reason);
-        return new NpcResponse
-        {
-            reply = "...",
-            mood = NpcMoods.Neutral,
-            persuasion = 0,
-            action = NpcActions.None
-        };
+        string t = text.Trim();
+        if (!t.StartsWith("```")) return t;
+
+        int firstBrace = t.IndexOf('{');
+        int lastBrace = t.LastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace)
+            return t.Substring(firstBrace, lastBrace - firstBrace + 1);
+        return t;
     }
 }
