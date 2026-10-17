@@ -1,49 +1,39 @@
 using UnityEngine;
 
-public class FieldOfView2D : MonoBehaviour
+public class FieldOfView2D : MonoBehaviour, IVisionSensor
 {
     [Header("Görüþ Ayarlarý")]
-    public float viewRadius = 5f;
-    [Range(0, 360)]
-    public float viewAngle = 90f;
+    [SerializeField] private float viewRadius = 5f;
+    [SerializeField, Range(0f, 360f)] private float viewAngle = 90f;
+    [SerializeField] private LayerMask targetMask;
+    [SerializeField] private LayerMask obstacleMask;
 
-    public LayerMask targetMask;
-    public LayerMask obstacleMask;
-
-    [HideInInspector]
-    public bool canSeeTarget = false;
-    private Transform detectedTarget;
-
-    public Transform DetectedTarget => detectedTarget;
-
-    public bool CheckVision(Transform searchTarget)
+    public bool TrySeeTarget(Vector2 facing, out Transform target)
     {
-        canSeeTarget = false;
-        detectedTarget = null;
+        target = null;
 
-        if (searchTarget == null) return false;
+        Collider2D hit = Physics2D.OverlapCircle(transform.position, viewRadius, targetMask);
+        if (hit == null) return false;
 
-        Vector2 directionToTarget = (searchTarget.position - transform.position);
-        float distanceToTarget = directionToTarget.magnitude;
+        Vector2 origin = transform.position;
+        Vector2 toTarget = (Vector2)hit.bounds.center - origin;
+        float distance = toTarget.magnitude;
 
-        if (distanceToTarget <= viewRadius)
-        {
-            Vector2 forward = transform.up;
-            float angleBetweenTarget = Vector2.Angle(forward, directionToTarget);
+        if (distance > 0.01f && Vector2.Angle(facing, toTarget) > viewAngle * 0.5f)
+            return false;
 
-            if (angleBetweenTarget <= viewAngle / 2f)
-            {
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToTarget.normalized, distanceToTarget, obstacleMask);
+        if (Physics2D.Raycast(origin, toTarget.normalized, distance, obstacleMask))
+            return false;
 
-                if (hit.collider == null)
-                {
-                    canSeeTarget = true;
-                    detectedTarget = searchTarget;
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        target = hit.transform;
+        return true;
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, viewRadius);
+    }
+#endif
 }
