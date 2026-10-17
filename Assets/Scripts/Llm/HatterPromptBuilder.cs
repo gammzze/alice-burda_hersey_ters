@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-public class HatterPromptBuilder
+public class HatterPromptBuilder : IPromptBuilder
 {
     private readonly int _maxHistory;
 

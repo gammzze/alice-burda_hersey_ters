@@ -8,6 +8,7 @@ public class OllamaTest : MonoBehaviour
     [TextArea(2, 4)]
     [SerializeField] private string userMessage = "Merhaba Şapkacı, çay partisi nasıl gidiyor?";
 
+    private static readonly DialogueRules Rules = new DialogueRules();
     private NpcDialogueController _controller;
     private GameActionFactory _factory;
     private bool _busy;
@@ -15,16 +16,12 @@ public class OllamaTest : MonoBehaviour
     private void Awake()
     {
         _controller = NewController();
-        _factory = new GameActionFactory(new DebugGameFlow(), new DebugHatterScene());
+        _factory = new GameActionFactory(new DebugGameFlow(), new DebugHatterScene(), Rules);
     }
 
     private static NpcDialogueController NewController()
     {
-        return new NpcDialogueController(
-            new OllamaClient(),
-            new HatterPromptBuilder(),
-            new ConversationHistory(),
-            maxRetries: 1);
+        return HatterDialogueFactory.Create(new OllamaClient(), rules: Rules);
     }
 
     // Tek mesaj gönderir. User Message'ı yaz, ⋮ menüsünden "Send" seç.
@@ -216,8 +213,8 @@ public class OllamaTest : MonoBehaviour
         {
             var tracker = new PersuasionTracker();
             var history = new ConversationHistory();
-            var controller = new NpcDialogueController(
-                new FakeLlmClient(c.result), new HatterPromptBuilder(), history, maxRetries: 0, tracker: tracker);
+            var controller = HatterDialogueFactory.Create(
+                new FakeLlmClient(c.result), history, tracker, maxRetries: 0, rules: Rules);
 
             DialogueOutcome o = await controller.AskAsync("test mesaji", destroyCancellationToken);
             if (o.IsCancelled) { _busy = false; return; }

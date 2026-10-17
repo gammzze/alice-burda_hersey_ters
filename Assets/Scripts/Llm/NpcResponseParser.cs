@@ -2,20 +2,18 @@
 using UnityEngine;
 
 // Ollama'nın ham yanıtını NpcResponse'a çevirir.
-// Boş, bozuk veya eksik alanlı yanıtı "geçersiz" olarak işaretler;
-// çağıran taraf geçersiz yanıtta oyun durumunu değiştirmez.
-public static class NpcResponseParser
+// Boş, bozuk veya eksik alanlı yanıtı "geçersiz" olarak işaretler.
+public class NpcResponseParser : IResponseParser
 {
     private static readonly string[] RequiredKeys = { "reply", "mood", "persuasion", "action" };
 
-    public static ParseResult Parse(string rawJson)
+    public ParseResult Parse(string rawJson)
     {
         if (string.IsNullOrWhiteSpace(rawJson))
             return ParseResult.Fail("Boş yanıt geldi.");
 
         try
         {
-            // 1. Katman: Ollama zarfı
             OllamaEnvelope envelope = JsonUtility.FromJson<OllamaEnvelope>(rawJson);
             if (envelope == null || envelope.message == null ||
                 string.IsNullOrWhiteSpace(envelope.message.content))
@@ -23,15 +21,12 @@ public static class NpcResponseParser
 
             string content = StripCodeFence(envelope.message.content);
 
-            // JsonUtility eksik alanı sessizce varsayılan değere çevirir,
-            // bu yüzden dört anahtarın varlığını ayrıca kontrol ediyoruz.
             foreach (string key in RequiredKeys)
             {
                 if (!content.Contains("\"" + key + "\""))
                     return ParseResult.Fail("Eksik alan: " + key);
             }
 
-            // 2. Katman: modelin ürettiği JSON
             NpcResponse response = JsonUtility.FromJson<NpcResponse>(content);
             if (response == null)
                 return ParseResult.Fail("Yanıt ayrıştırılamadı.");

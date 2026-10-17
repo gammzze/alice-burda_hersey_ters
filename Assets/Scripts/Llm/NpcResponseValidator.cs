@@ -2,13 +2,17 @@ using System;
 using UnityEngine;
 
 // Modelin ürettiði deðerleri doðrular ve güvenli hale getirir.
-public static class NpcResponseValidator
+public class NpcResponseValidator : IResponseValidator
 {
-    // LeaveTable için gereken minimum toplam ikna seviyesi
-    public const float LeaveTableThreshold = 0.7f;
+    private readonly DialogueRules _rules;
+
+    public NpcResponseValidator(DialogueRules rules)
+    {
+        _rules = rules;
+    }
 
     // Deðer/ölçek düzeltme. Eþik kontrolü yapmaz.
-    public static NpcResponse Normalize(NpcResponse response)
+    public NpcResponse Normalize(NpcResponse response)
     {
         if (response == null)
             return null;
@@ -24,7 +28,7 @@ public static class NpcResponseValidator
     }
 
     // Normalize + eþik kontrolü. persuasion burada TOPLAM seviye olmalý.
-    public static NpcResponse Validate(NpcResponse response)
+    public NpcResponse Validate(NpcResponse response)
     {
         if (response == null)
             return null;
@@ -32,7 +36,7 @@ public static class NpcResponseValidator
         Normalize(response);
 
         if (response.action == NpcActions.LeaveTable &&
-            response.persuasion < LeaveTableThreshold)
+            response.persuasion < _rules.LeaveTableThreshold)
         {
             Debug.LogWarning("Validator: LeaveTable reddedildi, persuasion yetersiz (" +
                              response.persuasion.ToString("F2") + ").");

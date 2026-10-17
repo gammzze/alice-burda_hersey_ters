@@ -2,7 +2,7 @@ using UnityEngine;
 
 // Ýkna seviyesini kod tarafýnda biriktirir.
 // Model yalnýzca son mesajýn ikna gücünü (0-1) söyler; toplamý kod hesaplar.
-public class PersuasionTracker
+public class PersuasionTracker : IPersuasionTracker
 {
     public const float GainFactor = 0.4f;        // tur ikna gücü * 0.4
     public const float MaxIncreasePerTurn = 0.2f;

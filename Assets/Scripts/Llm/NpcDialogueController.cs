@@ -4,26 +4,32 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 // Diyalog akýþý: mesaj -> prompt -> LLM -> parse -> doðrulama -> sonuç.
-// Hata olursa 1-2 kez yeniden dener, olmazsa yedek yanýt döner.
+// Tüm baðýmlýlýklar arayüz olarak dýþarýdan verilir.
 public class NpcDialogueController
 {
     private readonly ILlmClient _client;
-    private readonly HatterPromptBuilder _builder;
+    private readonly IPromptBuilder _builder;
     private readonly ConversationHistory _history;
-    private readonly PersuasionTracker _tracker;
+    private readonly IResponseParser _parser;
+    private readonly IResponseValidator _validator;
+    private readonly IPersuasionTracker _tracker;
     private readonly int _maxRetries;
 
     public NpcDialogueController(ILlmClient client,
-                                 HatterPromptBuilder builder,
+                                 IPromptBuilder builder,
                                  ConversationHistory history,
-                                 int maxRetries = 1,
-                                 PersuasionTracker tracker = null)
+                                 IResponseParser parser,
+                                 IResponseValidator validator,
+                                 IPersuasionTracker tracker,
+                                 int maxRetries = 1)
     {
         _client = client;
         _builder = builder;
         _history = history;
+        _parser = parser;
+        _validator = validator;
+        _tracker = tracker;
         _maxRetries = Mathf.Clamp(maxRetries, 0, 2);
-        _tracker = tracker ?? new PersuasionTracker();
     }
 
     public async Task<DialogueOutcome> AskAsync(string playerMessage,
@@ -60,7 +66,7 @@ public class NpcDialogueController
                     continue;
                 }
 
-                ParseResult parsed = NpcResponseParser.Parse(result.RawJson);
+                ParseResult parsed = _parser.Parse(result.RawJson);
                 if (!parsed.IsValid)
                 {
                     lastError = parsed.Error;
@@ -70,10 +76,10 @@ public class NpcDialogueController
 
                 // 1) deðerleri düzelt, 2) toplam ikna seviyesini kodda biriktir,
                 // 3) eþik kontrolü TOPLAM seviyeye bakar.
-                NpcResponse npc = NpcResponseValidator.Normalize(parsed.Response);
+                NpcResponse npc = _validator.Normalize(parsed.Response);
                 float turnScore = npc.persuasion;
                 npc.persuasion = _tracker.Apply(turnScore, npc.mood);
-                npc = NpcResponseValidator.Validate(npc);
+                npc = _validator.Validate(npc);
 
                 // Geçmiþe modelin kendi verdiði tur puaný yazýlýr, toplam deðil.
                 var stored = new NpcResponse
