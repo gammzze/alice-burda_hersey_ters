@@ -9,6 +9,7 @@ public class TeaPartyInstaller : MonoBehaviour
     public IHatterScene Scene { get; private set; }
     public GameActionFactory Actions { get; private set; }
     public NpcDialogueController Dialogue { get; private set; }
+    public LlmWarmup Warmup { get; private set; }
 
     private void Awake()
     {
@@ -28,5 +29,8 @@ public class TeaPartyInstaller : MonoBehaviour
 
         Actions = new GameActionFactory(Flow, Scene, rules);
         Dialogue = HatterDialogueFactory.Create(new OllamaClient(), rules: rules);
+
+        // Isýnma isteði ilk model yüklemesini kapsayacaðý için daha uzun timeout.
+        Warmup = new LlmWarmup(new OllamaClient(timeoutSeconds: 60));
     }
 }
