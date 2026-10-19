@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// Þapkacý masadan kalkar: fincanlar devrilir, delik açýlýr, aþama tamamlanýr.
+// Þapkacý masadan kalkar. Sahne sekansý bitince TeaParty aþamasý tamamlanýr.
 public class LeaveTableAction : IGameAction
 {
     private readonly IGameFlow _flow;
@@ -18,8 +18,11 @@ public class LeaveTableAction : IGameAction
         if (_executed) return;   // iki kez çalýþmasýn
         _executed = true;
 
-        _scene.KnockOverCups();
-        _scene.OpenHole();
+        _scene.PlayLeaveSequence(OnSequenceCompleted);
+    }
+
+    private void OnSequenceCompleted()
+    {
         _flow.CompleteStage(GameStage.TeaParty);
         Debug.Log("LeaveTableAction: TeaParty tamamlandý.");
     }

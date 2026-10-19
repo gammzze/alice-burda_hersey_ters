@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -8,10 +9,17 @@ public class TeaPartySceneController : MonoBehaviour, IHatterScene
     [SerializeField] private GameObject hole;
     [SerializeField] private SpriteRenderer hatter;
     [SerializeField] private float knockDuration = 0.6f;
+    [SerializeField] private float replyReadSeconds = 2.5f;   // son cümle ekranda kalýr
+    [SerializeField] private float afterHoleSeconds = 1.5f;   // delik açýldýktan sonra bekleme
+
+    // Diyalog paneli bu olaya abone olup kapanýr. Sahne arayüzü tanýmaz.
+    public event Action LeaveSequenceStarted;
+    public event Action SceneReset;
 
     private Vector3[] _cupPositions;
     private Quaternion[] _cupRotations;
     private Color _hatterColor;
+    private bool _sequenceRunning;
 
     private void Awake()
     {
@@ -40,10 +48,19 @@ public class TeaPartySceneController : MonoBehaviour, IHatterScene
         if (hatter != null) StartCoroutine(FlashRoutine());
     }
 
+    public void PlayLeaveSequence(Action onCompleted)
+    {
+        if (_sequenceRunning) return;
+        _sequenceRunning = true;
+        StartCoroutine(LeaveRoutine(onCompleted));
+    }
+
     // Test için: sahneyi baþlangýç haline döndürür.
     public void ResetScene()
     {
         StopAllCoroutines();
+        _sequenceRunning = false;
+
         for (int i = 0; i < cups.Length; i++)
         {
             if (cups[i] == null) continue;
@@ -51,6 +68,21 @@ public class TeaPartySceneController : MonoBehaviour, IHatterScene
         }
         if (hole != null) hole.SetActive(false);
         if (hatter != null) hatter.color = _hatterColor;
+
+        SceneReset?.Invoke();
+    }
+
+    private IEnumerator LeaveRoutine(Action onCompleted)
+    {
+        yield return new WaitForSeconds(replyReadSeconds);   // oyuncu son cümleyi okur
+        LeaveSequenceStarted?.Invoke();                      // diyalog paneli kapanýr
+
+        yield return KnockRoutine();
+        OpenHole();
+        yield return new WaitForSeconds(afterHoleSeconds);
+
+        _sequenceRunning = false;
+        onCompleted?.Invoke();                               // aþama tamamlanýr
     }
 
     private IEnumerator KnockRoutine()

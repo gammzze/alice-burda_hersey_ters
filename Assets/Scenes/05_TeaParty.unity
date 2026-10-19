@@ -444,6 +444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TeaPartyController
   installer: {fileID: 1497429409}
+  sceneController: {fileID: 1301321908}
   ui: {fileID: 1552302036}
   thinking: {fileID: 802838920}
   errorPanel: {fileID: 916642456}
@@ -2001,6 +2002,8 @@ MonoBehaviour:
   hole: {fileID: 625817502}
   hatter: {fileID: 1297197798}
   knockDuration: 0.6
+  replyReadSeconds: 2.5
+  afterHoleSeconds: 1.5
 --- !u!4 &1301321909
 Transform:
   m_ObjectHideFlags: 0
