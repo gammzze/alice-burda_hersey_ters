@@ -6,7 +6,10 @@ public class GameStateManager : MonoBehaviour, IGameFlow
 {
     public static IGameFlow Instance { get; private set; }
 
-    public GameStage Current { get; private set; } = GameStage.Intro;
+    [Header("Debug: sahneyi tek baþýna test etmek için")]
+    [SerializeField] private GameStage startStage = GameStage.Intro;
+
+    public GameStage Current { get; private set; }
     public event Action<GameStage> OnStageChanged;
 
     private static readonly string[] SceneNames =
@@ -19,6 +22,7 @@ public class GameStateManager : MonoBehaviour, IGameFlow
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        Current = startStage;
         DontDestroyOnLoad(gameObject);
     }
 
