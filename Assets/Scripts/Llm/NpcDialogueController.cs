@@ -78,8 +78,21 @@ public class NpcDialogueController
                 // 3) eþik kontrolü TOPLAM seviyeye bakar.
                 NpcResponse npc = _validator.Normalize(parsed.Response);
                 float turnScore = npc.persuasion;
+                bool wantedToLeave = npc.action == NpcActions.LeaveTable;
                 npc.persuasion = _tracker.Apply(turnScore, npc.mood);
                 npc = _validator.Validate(npc);
+
+                // Model kalkmak istedi ama kod reddetti: cümleyi yine modelden iste.
+                if (wantedToLeave && npc.action != NpcActions.LeaveTable)
+                {
+                    npc.reply = await RegenerateRejectedReplyAsync(cancellationToken);
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        _history.RemoveLast();
+                        return DialogueOutcome.Cancelled();
+                    }
+                }
 
                 // Geçmiþe modelin kendi verdiði tur puaný yazýlýr, toplam deðil.
                 var stored = new NpcResponse
@@ -101,5 +114,36 @@ public class NpcDialogueController
 
         _history.RemoveLast();
         return DialogueOutcome.Fallback(lastError);
+    }
+
+    private const string RejectedHint =
+    "(Oyun notu: Oyuncu seni henüz masadan kalkacak kadar ikna etmedi. " +
+    "Masadan kalkmayý kibarca ve karakterine uygun þekilde reddet, action None olsun. " +
+    "Ayný JSON formatýnda yanýt ver.)";
+
+    // Eylem reddedilince cümleyi modelden yeniden ister.
+    // Yalnýzca bu istek de baþarýsýz olursa yedek cümle kullanýlýr.
+    private async Task<string> RegenerateRejectedReplyAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var messages = _builder.Build(_history, _tracker.Current);
+            messages.Add(new ChatMessage("user", RejectedHint));
+
+            LlmResult result = await _client.SendAsync(messages, cancellationToken);
+            if (!result.Success)
+                return FallbackResponses.NotConvinced();
+
+            ParseResult parsed = _parser.Parse(result.RawJson);
+            if (!parsed.IsValid || string.IsNullOrWhiteSpace(parsed.Response.reply))
+                return FallbackResponses.NotConvinced();
+
+            return parsed.Response.reply;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("Reddedilen yanýt yeniden üretilemedi: " + e.Message);
+            return FallbackResponses.NotConvinced();
+        }
     }
 }
