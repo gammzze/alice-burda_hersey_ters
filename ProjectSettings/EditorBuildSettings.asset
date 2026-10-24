@@ -17,6 +17,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/03_RoseGarden.unity
     guid: 4b533d3e4b7a7c94a9a74dfa9234dd8b
+  - enabled: 1
+    path: Assets/Scenes/05_TeaParty.unity
+    guid: bed839164385e794c837a28a980aca71
+  - enabled: 1
+    path: Assets/Scenes/06_Ending.unity
+    guid: 713a7ec3871607c45a199f05f63dc652
+  - enabled: 1
+    path: Assets/Scenes/02_Story.unity
+    guid: 99375d88bb8f8dc448920414f0807427
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
