@@ -5,6 +5,7 @@ using UnityEngine;
 public class StoryController : MonoBehaviour
 {
     [SerializeField] private StoryDialogueUI ui;
+    [SerializeField] private ScreenFader fader;
 
     [SerializeField]
     private StoryLine[] lines =
@@ -54,6 +55,8 @@ public class StoryController : MonoBehaviour
         }
 
         ui.SetInteractable(false);   // çift týklamayla iki kez tamamlanmasýn
-        _flow.CompleteStage(GameStage.Story);
+
+        if (fader != null) fader.FadeOut(() => _flow.CompleteStage(GameStage.Story));
+        else _flow.CompleteStage(GameStage.Story);
     }
 }
