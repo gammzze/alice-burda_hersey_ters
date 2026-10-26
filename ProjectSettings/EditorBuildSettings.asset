@@ -14,6 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/04_Escape.unity
     guid: 011dd2bfab3947b41a0c2550404b552b
+  - enabled: 1
+    path: Assets/Scenes/05_TeaParty.unity
+    guid: bed839164385e794c837a28a980aca71
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
