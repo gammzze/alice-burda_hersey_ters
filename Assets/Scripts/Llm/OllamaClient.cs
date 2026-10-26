@@ -22,32 +22,40 @@ public class OllamaClient : ILlmClient
     }
 
     public async Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages,
-                                           CancellationToken cancellationToken = default)
+                                       CancellationToken cancellationToken = default)
     {
-        string body = BuildBody(messages);
-
-        using (var req = new UnityWebRequest(_url, "POST"))
+        try
         {
-            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
-            req.downloadHandler = new DownloadHandlerBuffer();
-            req.SetRequestHeader("Content-Type", "application/json");
-            req.timeout = _timeoutSeconds;
+            string body = BuildBody(messages);
 
-            var op = req.SendWebRequest();
-            while (!op.isDone)
+            using (var req = new UnityWebRequest(_url, "POST"))
             {
-                if (cancellationToken.IsCancellationRequested)
+                req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+                req.downloadHandler = new DownloadHandlerBuffer();
+                req.SetRequestHeader("Content-Type", "application/json");
+                req.timeout = _timeoutSeconds;
+
+                var op = req.SendWebRequest();
+                while (!op.isDone)
                 {
-                    req.Abort();
-                    return new LlmResult { Success = false, Error = "Ýstek iptal edildi." };
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        req.Abort();
+                        return new LlmResult { Success = false, Error = "Ýstek iptal edildi." };
+                    }
+                    await Task.Yield();   // frame'i bloklamaz
                 }
-                await Task.Yield();   // frame'i bloklamaz
+
+                if (req.result != UnityWebRequest.Result.Success)
+                    return new LlmResult { Success = false, Error = req.error };
+
+                return new LlmResult { Success = true, RawJson = req.downloadHandler.text };
             }
-
-            if (req.result != UnityWebRequest.Result.Success)
-                return new LlmResult { Success = false, Error = req.error };
-
-            return new LlmResult { Success = true, RawJson = req.downloadHandler.text };
+        }
+        catch (Exception e)
+        {
+            // Sözleþme: istemci exception fýrlatmaz, hatayý LlmResult olarak döner.
+            return new LlmResult { Success = false, Error = "Ýstemci hatasý: " + e.Message };
         }
     }
 
