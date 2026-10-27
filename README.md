@@ -204,9 +204,32 @@ Ham veriler: `docs/results/*.csv`.
 
 #### Ekran görüntüleri
 
-> TODO: `docs/images/` altına eklenecek (bahçede bot, 04_Escape, test Console çıktısı, `[Flow]` zinciri, build sahne listesi, PR geçmişi).
+![Gül bahçesi: bot gülleri boyuyor](docs/images/03_garden.png)
+
+*Şekil 1: 03_RoseGarden, Fırça Bot gülleri boyarken (kırmızı: boyanmış, beyaz: boyanmamış).*
+
+![Kaçış sahnesi](docs/images/04_escape.png)
+
+*Şekil 2: 04_Escape (placeholder görseller).*
+
+![Test çıktısı](docs/images/agent_test_console.png)
+
+*Şekil 3: AgentTestRunner çıktısı.*
+
+![Sahne akışı logu](docs/images/flow_log.png)
+
+*Şekil 4: Garden → Escape → TeaParty geçişi, `[Flow]` logları.*
+
+![Build sahne listesi](docs/images/build_scene_list.png)
+
+*Şekil 5: Build Profiles sahne listesi.*
+
+![Pull request geçmişi](docs/images/github_prs.png)
+
+*Şekil 6: İki üyenin PR geçmişi.*
 
 ### 5.2 NPC diyalog testleri (Kişi B)
+
 
 > TODO (Kevser): en az 5 senaryo (ikna eden, kızdıran, alakasız, prompt injection, boş mesaj) ve modelin tepkileri.
 
