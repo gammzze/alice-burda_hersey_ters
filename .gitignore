@@ -106,4 +106,5 @@ InitTestScene*.unity*
 /UIElementsSchema/
 
 # Auto-generated cache in Assets folder
-/[Aa]ssets/[Ss]ceneDependencyCache*desktop.ini
+/[Aa]ssets/[Ss]ceneDependencyCache*
+desktop.ini
