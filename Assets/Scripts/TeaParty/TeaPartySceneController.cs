@@ -11,6 +11,7 @@ public class TeaPartySceneController : MonoBehaviour, IHatterScene
     [SerializeField] private float knockDuration = 0.6f;
     [SerializeField] private float replyReadSeconds = 2.5f;   // son cümle ekranda kalýr
     [SerializeField] private float afterHoleSeconds = 1.5f;   // delik açýldýktan sonra bekleme
+    [SerializeField] private ScreenFader fader;
 
     // Diyalog paneli bu olaya abone olup kapanýr. Sahne arayüzü tanýmaz.
     public event Action LeaveSequenceStarted;
@@ -80,6 +81,14 @@ public class TeaPartySceneController : MonoBehaviour, IHatterScene
         yield return KnockRoutine();
         OpenHole();
         yield return new WaitForSeconds(afterHoleSeconds);
+
+        // Ekran kararýr, sonra aþama tamamlanýr (sahne deðiþimi kararmýþ ekranda olur).
+        if (fader != null)
+        {
+            bool faded = false;
+            fader.FadeOut(() => faded = true);
+            yield return new WaitUntil(() => faded);
+        }
 
         _sequenceRunning = false;
         onCompleted?.Invoke();                               // aþama tamamlanýr
