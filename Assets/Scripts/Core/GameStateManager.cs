@@ -18,6 +18,13 @@ public class GameStateManager : MonoBehaviour, IGameFlow
         "04_Escape", "05_TeaParty", "06_Ending"
     };
 
+    // Her Play'de static Instance'ý sýfýrlar (Domain Reload kapalýyken eski örnek kalmasýn)
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        Instance = null;
+    }
+
     private void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -28,6 +35,7 @@ public class GameStateManager : MonoBehaviour, IGameFlow
 
     public void CompleteStage(GameStage stage)
     {
+        Debug.Log($"[Flow] CompleteStage({stage}) çaðrýldý, Current={Current}");
         if (stage != Current || Current == GameStage.Ending) return;
         GoTo((GameStage)((int)Current + 1));
     }
@@ -41,6 +49,7 @@ public class GameStateManager : MonoBehaviour, IGameFlow
     {
         Current = next;
         OnStageChanged?.Invoke(next);
+        Debug.Log($"[Flow] Sahne yükleniyor: {SceneNames[(int)next]}");
         SceneManager.LoadSceneAsync(SceneNames[(int)next]);
     }
 }

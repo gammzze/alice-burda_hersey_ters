@@ -6,17 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 1
     path: Assets/Scenes/00_MainMenu.unity
     guid: a5ee86dc13eee2f429ecd8d45c9e05c6
-  - enabled: 1
-    path: Assets/Scenes/01_Fall.unity
-    guid: f581ec5e472c9ef44ba6f4e9a5071138
-  - enabled: 1
-    path: Assets/Scenes/02_Story.unity
-    guid: 99375d88bb8f8dc448920414f0807427
   - enabled: 1
     path: Assets/Scenes/03_RoseGarden.unity
     guid: 4b533d3e4b7a7c94a9a74dfa9234dd8b
@@ -26,12 +17,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/05_TeaParty.unity
     guid: bed839164385e794c837a28a980aca71
-  - enabled: 1
-    path: Assets/Scenes/06_Ending.unity
-    guid: 713a7ec3871607c45a199f05f63dc652
-  - enabled: 1
-    path: Assets/Scenes/_Test_Player.unity
-    guid: 7b5ee821ab8c293418bf3f6f5846892f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
