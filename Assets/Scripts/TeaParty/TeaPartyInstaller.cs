@@ -1,6 +1,7 @@
 using UnityEngine;
 
 // 05_TeaParty sahnesinin baðýmlýlýklarýný tek yerde birleþtirir (composition root).
+[DefaultExecutionOrder(100)]
 public class TeaPartyInstaller : MonoBehaviour
 {
     [SerializeField] private TeaPartySceneController sceneController;
