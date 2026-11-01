@@ -33,6 +33,16 @@ public class GameStateManager : MonoBehaviour, IGameFlow
         DontDestroyOnLoad(gameObject);
     }
 
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
+
+    // Ana menüye dönülünce oyun yeniden baþlayabilsin diye aþamayý sýfýrlar
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if ((object)Instance != this) return;
+        if (scene.name == "00_MainMenu") Current = GameStage.Intro;
+    }
+
     public void CompleteStage(GameStage stage)
     {
         Debug.Log($"[Flow] CompleteStage({stage}) çaðrýldý, Current={Current}");
