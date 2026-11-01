@@ -1,32 +1,38 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using Debug = UnityEngine.Debug;
 
 public class OllamaClient : ILlmClient
 {
     private readonly string _url;
     private readonly string _model;
     private readonly int _timeoutSeconds;
+    private readonly string _keepAlive;
 
     public OllamaClient(string model = "gemma3:4b",
                         string url = "http://localhost:11434/api/chat",
-                        int timeoutSeconds = 20)
+                        int timeoutSeconds = 20,
+                        string keepAlive = "30m")
     {
         _model = model;
         _url = url;
         _timeoutSeconds = timeoutSeconds;
+        _keepAlive = keepAlive;
     }
 
     public async Task<LlmResult> SendAsync(IReadOnlyList<ChatMessage> messages,
-                                       CancellationToken cancellationToken = default)
+                                           CancellationToken cancellationToken = default)
     {
         try
         {
             string body = BuildBody(messages);
+            var timer = Stopwatch.StartNew();
 
             using (var req = new UnityWebRequest(_url, "POST"))
             {
@@ -49,6 +55,7 @@ public class OllamaClient : ILlmClient
                 if (req.result != UnityWebRequest.Result.Success)
                     return new LlmResult { Success = false, Error = req.error };
 
+                Debug.Log($"[Ollama] yanýt süresi: {timer.ElapsedMilliseconds} ms");
                 return new LlmResult { Success = true, RawJson = req.downloadHandler.text };
             }
         }
@@ -66,6 +73,7 @@ public class OllamaClient : ILlmClient
             model = _model,
             stream = false,
             format = "json",
+            keep_alive = _keepAlive,
             messages = new List<ChatMessage>(messages).ToArray()
         };
         return JsonUtility.ToJson(payload);
@@ -77,6 +85,7 @@ public class OllamaClient : ILlmClient
         public string model;
         public bool stream;
         public string format;
+        public string keep_alive;
         public ChatMessage[] messages;
     }
 }

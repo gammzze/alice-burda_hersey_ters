@@ -9,6 +9,7 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private TMP_InputField input;
     [SerializeField] private Button sendButton;
     [SerializeField] private TMP_Text replyText;
+    [SerializeField] private GameObject hint;
 
     // Oyuncu mesaj gönderdiðinde tetiklenir (boþ mesajlar buraya gelmez).
     public event Action<string> MessageSubmitted;
@@ -42,6 +43,7 @@ public class DialogueUI : MonoBehaviour
         string text = input.text.Trim();
         if (string.IsNullOrEmpty(text)) return;
 
+        if (hint != null) hint.SetActive(false);
         input.text = string.Empty;
         MessageSubmitted?.Invoke(text);
     }
