@@ -96,7 +96,7 @@ public class OllamaTest : MonoBehaviour
 
         var controller = NewController();
         var sb = new StringBuilder();
-        sb.AppendLine("Uzun ikna testi, prompt: v3 (persuasion kodda biriktirilir)");
+        sb.AppendLine("Uzun ikna testi, prompt: final (persuasion kodda biriktirilir)");
 
         for (int i = 0; i < messages.Length; i++)
         {
