@@ -1,50 +1,79 @@
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 
 public class GardenGateController : MonoBehaviour
 {
+    [Header("Kapi Bileþenleri")]
+    [SerializeField] private GameObject gateBlocker; // Kapýyý kapatan fiziksel engel
+    [SerializeField] private GameObject exitZone;    // Kapý açýlýnca aktif olan çýkýþ alaný (Trigger)
+
     private Rose[] rosesInGarden;
-    private bool stageCompleted = false;
+    private bool gateOpened;
 
-    void Start()
+    private void Start()
     {
-        // Sahnedeki tüm Rose bileþenine sahip nesneleri bulur
-        rosesInGarden = FindObjectsByType<Rose>(FindObjectsSortMode.None);
+        // Sahnede bulunan tüm Rose bileþenlerini bul
+        RefreshRoseList();
 
-        if (rosesInGarden.Length == 0)
+        // Baþlangýçta çýkýþ alanýný kapalý tut
+        if (exitZone != null)
         {
-            Debug.LogWarning("[GardenGateController] Sahnede hiç gül bulunamadý!");
-        }
-    }
-
-    void Update()
-    {
-        if (stageCompleted || rosesInGarden == null || rosesInGarden.Length == 0)
-            return;
-
-        // Tüm güller boyandý mý kontrol et (Örn: IsPainted veya ilgili bayrak)
-       
-        bool allPainted = rosesInGarden.All(rose => rose.IsPainted); // Örnek özellik adý
-
-        if (allPainted)
-        {
-            stageCompleted = true;
-            TriggerGardenCompletion();
-        }
-    }
-
-    void TriggerGardenCompletion()
-    {
-        Debug.Log("[Completed] Tüm güller boyandý! Kapý açýlýyor ve Garden aþamasý tamamlanýyor.");
-
-        // GameStateManager üzerinden aþamayý tamamlama
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.CompleteStage(GameStage.Garden);
+            exitZone.SetActive(false);
         }
         else
         {
-            Debug.LogError("[GardenGateController] GameStateManager örneði bulunamadý!");
+            Debug.LogError("[GardenGate] exitZone atanmadý! Inspector üzerinden atama yapýn.");
+        }
+    }
+
+    private void Update()
+    {
+        if (gateOpened) return;
+
+        // Liste boþ veya sýfýrsa tekrar sahneden çekmeyi dene
+        if (rosesInGarden == null || rosesInGarden.Length == 0)
+        {
+            RefreshRoseList();
+            if (rosesInGarden == null || rosesInGarden.Length == 0) return;
+        }
+
+        // Sahnede boyanmamýþ gül kalmadýysa kapýyý aç
+        if (rosesInGarden.All(rose => rose != null && rose.IsPainted))
+        {
+            OpenGate();
+        }
+    }
+
+    /// <summary>
+    /// Kapýyý açar, engeli kaldýrýr ve çýkýþ trigger'ýný aktif eder.
+    /// Dýþarýdaki Search/Rose kontrolcülerinden de çaðrýlabilir.
+    /// </summary>
+    public void OpenGate()
+    {
+        if (gateOpened) return;
+
+        gateOpened = true;
+        Debug.Log("[Gate] Tüm güller boyandý, kapý açýldý. Alice çýkýþa yürümeli.");
+
+        // Kapý engelini kaldýr
+        if (gateBlocker != null)
+        {
+            gateBlocker.SetActive(false);
+        }
+
+        // Çýkýþ alanýný aktif et
+        if (exitZone != null)
+        {
+            exitZone.SetActive(true);
+        }
+    }
+
+    public void RefreshRoseList()
+    {
+        rosesInGarden = FindObjectsByType<Rose>(FindObjectsSortMode.None);
+        if (rosesInGarden.Length == 0)
+        {
+            Debug.LogWarning("[GardenGate] Sahnede gül bulunamadý!");
         }
     }
 }
