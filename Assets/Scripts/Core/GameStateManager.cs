@@ -6,19 +6,24 @@ public class GameStateManager : MonoBehaviour, IGameFlow
 {
     public static IGameFlow Instance { get; private set; }
 
-    [Header("Debug: sahneyi tek baþýna test etmek için")]
+    [Header("Debug & Test Ayarlarý")]
+    [Tooltip("Sahneyi editörde tek baþýna test ederken hangi aþamada baþlasýn?")]
     [SerializeField] private GameStage startStage = GameStage.Intro;
 
     public GameStage Current { get; private set; }
     public event Action<GameStage> OnStageChanged;
 
+    // Build Settings listesiyle birebir ayný sýralama
     private static readonly string[] SceneNames =
     {
-        "01_Fall", "02_Story", "03_RoseGarden",
-        "04_Escape", "05_TeaParty", "06_Ending"
+        "01_Fall",       // GameStage.Intro (0)
+        "02_Story",      // GameStage.Story (1)
+        "03_RoseGarden", // GameStage.Garden (2)
+        "04_Escape",     // GameStage.Escape (3)
+        "05_TeaParty",   // GameStage.TeaParty (4)
+        "06_Ending"      // GameStage.Ending (5)
     };
 
-    // Her Play'de static Instance'ý sýfýrlar (Domain Reload kapalýyken eski örnek kalmasýn)
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
     {
@@ -27,7 +32,12 @@ public class GameStateManager : MonoBehaviour, IGameFlow
 
     private void Awake()
     {
-        if (Instance != null) { Destroy(gameObject); return; }
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
         Current = startStage;
         DontDestroyOnLoad(gameObject);
@@ -36,30 +46,62 @@ public class GameStateManager : MonoBehaviour, IGameFlow
     private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
     private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    // Ana menüye dönülünce oyun yeniden baþlayabilsin diye aþamayý sýfýrlar
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if ((object)Instance != this) return;
-        if (scene.name == "00_MainMenu") Current = GameStage.Intro;
+
+        if (scene.name == "00_MainMenu")
+        {
+            Current = GameStage.Intro;
+        }
+        else
+        {
+            for (int i = 0; i < SceneNames.Length; i++)
+            {
+                if (SceneNames[i] == scene.name)
+                {
+                    Current = (GameStage)i;
+                    break;
+                }
+            }
+        }
     }
 
     public void CompleteStage(GameStage stage)
     {
-        Debug.Log($"[Flow] CompleteStage({stage}) çaðrýldý, Current={Current}");
-        if (stage != Current || Current == GameStage.Ending) return;
-        GoTo((GameStage)((int)Current + 1));
+        Debug.Log($"[Flow] CompleteStage({stage}) çaðrýldý, Aktif Aþama: {Current}");
+
+        if (Current == GameStage.Ending) return;
+
+        // Doðrudan hedef sahne adýný güvenli þekilde yükle
+        if (stage == GameStage.Garden)
+        {
+            GoToStage(GameStage.Escape, "04_Escape");
+        }
+        else
+        {
+            int nextIndex = (int)stage + 1;
+            if (nextIndex < SceneNames.Length)
+            {
+                GoToStage((GameStage)nextIndex, SceneNames[nextIndex]);
+            }
+        }
     }
 
     public void EndGame()
     {
-        if (Current != GameStage.Ending) GoTo(GameStage.Ending);
+        if (Current != GameStage.Ending)
+        {
+            GoToStage(GameStage.Ending, "06_Ending");
+        }
     }
 
-    private void GoTo(GameStage next)
+    private void GoToStage(GameStage nextStage, string sceneName)
     {
-        Current = next;
-        OnStageChanged?.Invoke(next);
-        Debug.Log($"[Flow] Sahne yükleniyor: {SceneNames[(int)next]}");
-        SceneManager.LoadSceneAsync(SceneNames[(int)next]);
+        Current = nextStage;
+        OnStageChanged?.Invoke(nextStage);
+
+        Debug.Log($"[Flow] Sahne yükleniyor: {sceneName}");
+        SceneManager.LoadSceneAsync(sceneName);
     }
 }
