@@ -1,6 +1,7 @@
 // Teknik hata metnini oyuncuya gösterilecek anlaþýlýr mesaja çevirir.
 public static class DialogueErrorMessages
 {
+    public const string ModelMissing = "Þapkacý'nýn modeli bulunamadý. Ollama'da gemma3:4b yüklü mü?";
     public const string ServerDown = "Þapkacý'ya ulaþýlamýyor. Ollama çalýþýyor mu? Tekrar dene.";
     public const string Timeout = "Þapkacý çok geç yanýt verdi. Tekrar dene.";
     public const string BadResponse = "Þapkacý'nýn yanýtý anlaþýlamadý. Tekrar dene.";
@@ -11,6 +12,9 @@ public static class DialogueErrorMessages
         if (string.IsNullOrEmpty(error)) return Generic;
 
         string e = error.ToLowerInvariant();
+
+        if (e.Contains("404") || e.Contains("not found"))
+            return ModelMissing;
 
         if (e.Contains("cannot connect") || e.Contains("cannot resolve") || e.Contains("connection"))
             return ServerDown;
