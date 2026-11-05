@@ -1671,8 +1671,8 @@ Transform:
   m_GameObject: {fileID: 1072081075}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.03, y: -0.03, z: 0}
-  m_LocalScale: {x: 0.99470425, y: 1.0746901, z: 1}
+  m_LocalPosition: {x: -0.1194, y: 0.0766, z: 0}
+  m_LocalScale: {x: 1.1044022, y: 1.0883716, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2744,8 +2744,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\xC7\u0131lg\u0131n \u015Eapkac\u0131 masadan kalkmak istemiyor. Onu ikna
-    et!"
+  m_text: "\xC7\u0131lg\u0131n \u015Eapkac\u0131 masadan kalkmak istemiyor. \nOnu
+    ikna et!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2754,8 +2754,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4284930559
-  m_fontColor: {r: 1, g: 0.8509804, b: 0.4, a: 1}
+    rgba: 4290764016
+  m_fontColor: {r: 0.93962264, g: 0.8645341, b: 0.7499252, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2778,7 +2778,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
