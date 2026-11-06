@@ -1,10 +1,9 @@
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    [SerializeField] private string gameSceneName = "_Test_Player";
+    [SerializeField] private string gameSceneName = "01_Fall";
 
     public void StartGame()
     {
@@ -13,6 +12,10 @@ public class MainMenu : MonoBehaviour
 
     public void QuitGame()
     {
-        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;   // editörde Play'i durdurur
+#else
+        Application.Quit();                                // build'de uygulamayý kapatýr
+#endif
     }
 }
