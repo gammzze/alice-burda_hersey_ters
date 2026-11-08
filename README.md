@@ -630,7 +630,7 @@ B hattının sahnelerinde (`00_MainMenu`, `01_Fall`, `02_Story`, `05_TeaParty`, 
 | `storyarkaplan`, `konuşma balonu` | ARAÇ ADI ile üretildi | Araç kullanım koşulları | `02_Story` |
 | `teapartyback`, `masa`, `fincan (1)`, `fincan2`, `fincan3`, `saat` | ARAÇ ADI ile üretildi | Araç kullanım koşulları | `05_TeaParty` |
 | `endingback`, `kart1`, `kart2` | ARAÇ ADI ile üretildi | Araç kullanım koşulları | `06_Ending` |
-| A hattı görselleri (GAMZE DOLDURACAK) | | | `03_RoseGarden`, `04_Escape` |
+| A hattı görselleri | | | `03_RoseGarden`, `04_Escape` |
 
 ## Ek B: Model seçimi gerekçesi (Kişi B)
 
